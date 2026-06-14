@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  vocabulary   UserVocabulary[]
+  progress     UserReadingProgress[]
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  titleCn     String
+  content     String
+  translation String
+  difficulty  String   @default("B1")
+  category    String   @default("academic")
+  createdAt   DateTime @default(now())
+
+  questions   ArticleQuestion[]
+}
+
+model ArticleQuestion {
+  id            String   @id @default(cuid())
+  articleId     String
+  type          String
+  questionText  String
+  options       String
+  correctAnswer String
+  orderIndex    Int
+
+  article       Article  @relation(fields: [articleId], references: [id])
+}
+
+model UserVocabulary {
+  id              String   @id @default(cuid())
+  userId          String
+  word            String
+  translationCn   String
+  contextSentence String?
+  articleId       String?
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, word])
+}
+
+model UserReadingProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  articleId   String
+  completed   Boolean   @default(false)
+  score       Int?
+  answers     String?
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, articleId])
+}

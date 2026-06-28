@@ -409,10 +409,6 @@ export type UserVocabularyUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.UserVocabularyScalarWhereInput | Prisma.UserVocabularyScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type UserVocabularyCreateWithoutUserInput = {
   id?: string
   word: string

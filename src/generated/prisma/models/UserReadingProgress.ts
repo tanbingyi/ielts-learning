@@ -475,10 +475,6 @@ export type UserReadingProgressUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.UserReadingProgressScalarWhereInput | Prisma.UserReadingProgressScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number

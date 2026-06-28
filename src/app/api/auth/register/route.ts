@@ -2,16 +2,26 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signJWT, setAuthCookie } from "@/lib/auth";
+import { verifyCode } from "@/lib/verification";
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
+    const { username, password, email, code } = await request.json();
 
-    if (!username || !password) {
-      return NextResponse.json(
-        { error: "用户名和密码不能为空" },
-        { status: 400 }
-      );
+    if (!username || !password || !email || !code) {
+      return NextResponse.json({ error: "所有字段不能为空" }, { status: 400 });
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: "邮箱格式不正确" }, { status: 400 });
+    }
+
+    // Verify code
+    const codeValid = await verifyCode(email, code, "REGISTER");
+    if (!codeValid) {
+      return NextResponse.json({ error: "验证码错误或已过期" }, { status: 400 });
     }
 
     const usernameRegex = /^[a-zA-Z0-9_一-鿿]{2,20}$/;
@@ -23,28 +33,24 @@ export async function POST(request: Request) {
     }
 
     if (password.length < 6) {
-      return NextResponse.json(
-        { error: "密码长度不能少于6位" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "密码长度不能少于6位" }, { status: 400 });
     }
 
-    const existing = await prisma.user.findUnique({
-      where: { username },
-    });
+    const existingUsername = await prisma.user.findUnique({ where: { username } });
+    if (existingUsername) {
+      return NextResponse.json({ error: "用户名已被注册" }, { status: 409 });
+    }
 
-    if (existing) {
-      return NextResponse.json(
-        { error: "用户名已被注册" },
-        { status: 409 }
-      );
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) {
+      return NextResponse.json({ error: "邮箱已被注册" }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
-      data: { username, passwordHash },
-      select: { id: true, username: true },
+      data: { username, email, emailVerified: true, passwordHash },
+      select: { id: true, username: true, email: true, emailVerified: true },
     });
 
     const token = await signJWT({ sub: user.id, username: user.username });
@@ -52,9 +58,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ user }, { status: 201 });
   } catch {
-    return NextResponse.json(
-      { error: "注册失败，请稍后再试" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "注册失败，请稍后再试" }, { status: 500 });
   }
 }

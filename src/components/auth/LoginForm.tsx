@@ -52,7 +52,7 @@ export default function LoginForm() {
 
       <div>
         <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1.5">
-          用户名
+          用户名 / 邮箱
         </label>
         <input
           id="username"
@@ -60,7 +60,7 @@ export default function LoginForm() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-mint-500 focus:border-transparent transition"
-          placeholder="请输入用户名"
+          placeholder="请输入用户名或邮箱"
           required
           autoComplete="username"
         />
@@ -80,6 +80,11 @@ export default function LoginForm() {
           required
           autoComplete="current-password"
         />
+        <div className="mt-1 text-right">
+          <Link href="/forgot-password" className="text-xs text-mint-600 hover:text-mint-700">
+            忘记密码？
+          </Link>
+        </div>
       </div>
 
       <button

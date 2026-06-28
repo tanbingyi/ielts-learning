@@ -53,7 +53,7 @@ export async function getSession() {
     const payload = await verifyJWT(token);
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, username: true },
+      select: { id: true, username: true, email: true, emailVerified: true },
     });
     return user;
   } catch {

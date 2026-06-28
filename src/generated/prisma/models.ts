@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
+export type * from './models/VerificationCode'
 export type * from './models/Article'
 export type * from './models/ArticleQuestion'
 export type * from './models/UserVocabulary'

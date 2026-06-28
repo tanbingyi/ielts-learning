@@ -8,12 +8,59 @@ import Spinner from "@/components/ui/Spinner";
 
 export default function RegisterForm() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const router = useRouter();
   const { setUser } = useAuth();
+
+  const sendCode = async () => {
+    if (!email || countdown > 0) return;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("请输入正确的邮箱地址");
+      return;
+    }
+
+    setError("");
+    setSendingCode(true);
+
+    try {
+      const res = await fetch("/api/auth/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, type: "REGISTER" }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "发送失败");
+        return;
+      }
+
+      // Start 60s countdown
+      setCountdown(60);
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch {
+      setError("网络错误，请稍后再试");
+    } finally {
+      setSendingCode(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +77,7 @@ export default function RegisterForm() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, email, code }),
       });
 
       const data = await res.json();
@@ -71,6 +118,49 @@ export default function RegisterForm() {
           required
           autoComplete="username"
         />
+      </div>
+
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+          邮箱
+        </label>
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-mint-500 focus:border-transparent transition"
+          placeholder="请输入QQ邮箱"
+          required
+          autoComplete="email"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1.5">
+          验证码
+        </label>
+        <div className="flex gap-2">
+          <input
+            id="code"
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-mint-500 focus:border-transparent transition"
+            placeholder="6位数字验证码"
+            required
+            maxLength={6}
+            inputMode="numeric"
+          />
+          <button
+            type="button"
+            onClick={sendCode}
+            disabled={sendingCode || countdown > 0}
+            className="w-32 text-sm text-mint-700 border border-mint-300 rounded-lg hover:bg-mint-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {sendingCode ? "发送中..." : countdown > 0 ? `${countdown}秒后重发` : "发送验证码"}
+          </button>
+        </div>
       </div>
 
       <div>

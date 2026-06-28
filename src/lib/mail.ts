@@ -1,17 +1,41 @@
 import nodemailer from "nodemailer";
+import dns from "dns";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.qq.com",
-  port: Number(process.env.SMTP_PORT) || 465,
-  secure: true,
-  connectionTimeout: 15000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+let transporter: nodemailer.Transporter | null = null;
+
+async function getTransporter(): Promise<nodemailer.Transporter> {
+  if (transporter) return transporter;
+
+  const hostname = process.env.SMTP_HOST || "smtp.qq.com";
+  const port = Number(process.env.SMTP_PORT) || 465;
+
+  // Resolve IPv4 address to avoid IPv6 connectivity issues on Railway
+  let host = hostname;
+  try {
+    const addrs = await dns.promises.resolve4(hostname);
+    if (addrs.length > 0) {
+      host = addrs[0];
+      console.log(`Resolved ${hostname} → ${host}`);
+    }
+  } catch {
+    // fallback to hostname
+  }
+
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: true,
+    connectionTimeout: 15000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  return transporter;
+}
 
 export async function sendVerificationEmail(
   to: string,
@@ -36,7 +60,8 @@ export async function sendVerificationEmail(
   `;
 
   try {
-    await transporter.sendMail({
+    const transport = await getTransporter();
+    await transport.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to,
       subject,
@@ -45,7 +70,6 @@ export async function sendVerificationEmail(
     console.log(`Verification email sent to ${to} for ${type}`);
   } catch (err) {
     console.error("Failed to send email:", err);
-    // Also log the code so it's available in Railway logs
     console.log(`[VERIFICATION CODE] ${to} - ${type}: ${code}`);
     throw err;
   }

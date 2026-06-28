@@ -20,7 +20,7 @@ export default function ReadingList({ groups }: { groups: Group[] }) {
       {groups.map((group) => (
         <CollapsibleSection
           key={group.source}
-          defaultOpen={true}
+          defaultOpen={false}
           title={
             group.source === "Cambridge IELTS 14" ? (
               <span className="flex items-center gap-2 text-lg font-bold text-mint-700">

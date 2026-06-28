@@ -37,7 +37,9 @@ function addArticle(
 }
 
 // Check if Cambridge 14 articles are already seeded
-const existingC14 = db.prepare("SELECT COUNT(*) as cnt FROM Article WHERE title LIKE '%Bike-Sharing%' OR title LIKE \"The Importance of Children's Play\" OR title LIKE '%Back to the Future%'").get() as { cnt: number };
+const existingC14 = db.prepare(
+  "SELECT COUNT(*) as cnt FROM Article WHERE title LIKE ? OR title LIKE ? OR title LIKE ?"
+).get("%Bike-Sharing%", "%Importance of Children%", "%Back to the Future%") as { cnt: number };
 if (existingC14.cnt >= 3) {
   console.log("Cambridge IELTS 14 articles already seeded, skipping.");
   db.close();

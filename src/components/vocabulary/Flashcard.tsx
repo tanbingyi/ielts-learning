@@ -1,33 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { speakWord } from "@/lib/speech";
 import type { VocabWord } from "@/types";
 
 interface Props {
   word: VocabWord;
   isFlipped: boolean;
   onFlip: () => void;
-}
-
-function speakWord(text: string, onStateChange: (speaking: boolean) => void) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
-  utterance.rate = 0.9;
-  utterance.onstart = () => onStateChange(true);
-  utterance.onend = () => onStateChange(false);
-  utterance.onerror = () => onStateChange(false);
-
-  const voices = window.speechSynthesis.getVoices();
-  const englishVoice = voices.find(
-    (v) => v.lang.startsWith("en-") && v.localService
-  );
-  if (englishVoice) utterance.voice = englishVoice;
-
-  window.speechSynthesis.speak(utterance);
 }
 
 export default function Flashcard({ word, isFlipped, onFlip }: Props) {
@@ -41,22 +21,16 @@ export default function Flashcard({ word, isFlipped, onFlip }: Props) {
     [word.word]
   );
 
-  const SpeakerIcon = ({ className }: { className?: string }) => (
+  const SpeakerIcon = () => (
     <button
       onClick={handleSpeak}
       disabled={speaking}
-      className={`flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-white/60 hover:bg-white/90 text-mint-600 hover:text-mint-700 transition-colors cursor-pointer disabled:opacity-50 ${className || ""}`}
-      title="朗读发音"
+      className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-white/60 hover:bg-white/90 text-mint-600 hover:text-mint-700 transition-colors cursor-pointer disabled:opacity-50"
+      title="英音朗读"
     >
-      {speaking ? (
-        <svg className="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-        </svg>
-      ) : (
-        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-        </svg>
-      )}
+      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+      </svg>
     </button>
   );
 

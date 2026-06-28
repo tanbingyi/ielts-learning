@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Spinner from "@/components/ui/Spinner";
+import { speakWord } from "@/lib/speech";
 
 interface Props {
   word: string;
@@ -34,33 +35,8 @@ export default function WordPopup({
   }, [onClose]);
 
   const handleSpeak = useCallback(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = "en-US";
-    utterance.rate = 0.9;
-    utterance.onstart = () => setSpeaking(true);
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
-
-    // Pick an English voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(
-      (v) => v.lang.startsWith("en-") && v.localService
-    );
-    if (englishVoice) utterance.voice = englishVoice;
-
-    window.speechSynthesis.speak(utterance);
+    speakWord(word, setSpeaking);
   }, [word]);
-
-  // Preload voices on mount
-  useEffect(() => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.getVoices();
-    }
-  }, []);
 
   return (
     <div
@@ -78,7 +54,7 @@ export default function WordPopup({
           onClick={handleSpeak}
           disabled={speaking}
           className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-mint-50 hover:bg-mint-100 text-mint-600 hover:text-mint-700 transition-colors cursor-pointer disabled:opacity-50"
-          title="朗读发音"
+          title="英音朗读"
         >
           {speaking ? (
             <svg className="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 24 24">

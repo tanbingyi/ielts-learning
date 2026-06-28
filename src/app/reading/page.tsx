@@ -1,28 +1,46 @@
-import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 import ArticleCard from "@/components/reading/ArticleCard";
 import type { ArticleSummary } from "@/types";
 
-async function getArticles(): Promise<ArticleSummary[]> {
-  const cookieStore = await cookies();
-  const cookieHeader = cookieStore.toString();
-
-  const res = await fetch(`${getBaseUrl()}/api/articles`, {
-    headers: { Cookie: cookieHeader },
-    cache: "no-store",
-  });
-
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.articles;
-}
-
-function getBaseUrl() {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  return "http://localhost:3000";
-}
-
 export default async function ReadingListPage() {
-  const articles = await getArticles();
+  const user = await getSession();
+
+  let articles: ArticleSummary[] = [];
+  let progressMap = new Map<string, { completed: boolean; score: number | null }>();
+
+  if (user) {
+    const [rawArticles, progress] = await Promise.all([
+      prisma.article.findMany({
+        select: {
+          id: true,
+          title: true,
+          titleCn: true,
+          difficulty: true,
+          category: true,
+          _count: { select: { questions: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.userReadingProgress.findMany({
+        where: { userId: user.id },
+        select: { articleId: true, completed: true, score: true },
+      }),
+    ]);
+
+    progress.forEach((p) => progressMap.set(p.articleId, p));
+
+    articles = rawArticles.map((a) => ({
+      id: a.id,
+      title: a.title,
+      titleCn: a.titleCn,
+      difficulty: a.difficulty,
+      category: a.category,
+      questionCount: a._count.questions,
+      completed: progressMap.get(a.id)?.completed ?? false,
+      score: progressMap.get(a.id)?.score ?? null,
+    }));
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

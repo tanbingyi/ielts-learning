@@ -8,6 +8,7 @@ import Spinner from "@/components/ui/Spinner";
 type Step = "email" | "reset";
 
 export default function ForgotPasswordForm() {
+  // v2 - email verification with code fallback
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -15,6 +16,7 @@ export default function ForgotPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [codeHint, setCodeHint] = useState("");
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -30,6 +32,8 @@ export default function ForgotPasswordForm() {
     }
 
     setError("");
+    setMessage("");
+    setCodeHint("");
     setSendingCode(true);
 
     try {
@@ -40,6 +44,10 @@ export default function ForgotPasswordForm() {
       });
       const data = await res.json();
       setMessage(data.message);
+
+      if (data.code) {
+        setCodeHint(data.code);
+      }
 
       if (res.ok) {
         setStep("reset");
@@ -153,14 +161,22 @@ export default function ForgotPasswordForm() {
           {error}
         </div>
       )}
-      {message && (
+      {message && !codeHint && (
         <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">
           {message}
         </div>
       )}
 
+      {codeHint && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 text-sm">
+          <p className="text-yellow-700 mb-1">⚠️ 邮件发送失败，验证码如下：</p>
+          <p className="text-2xl font-bold text-yellow-800 tracking-widest text-center">{codeHint}</p>
+          <p className="text-yellow-600 text-xs mt-1">10分钟内有效，请勿泄露</p>
+        </div>
+      )}
+
       <div className="bg-mint-50 border border-mint-200 rounded-lg px-4 py-3 text-sm text-mint-700">
-        验证码已发送至 <strong>{email}</strong>
+        验证码已生成并发送至 <strong>{email}</strong>
       </div>
 
       <div>

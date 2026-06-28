@@ -30,14 +30,19 @@ export default function LoginForm() {
 
       if (!res.ok) {
         setError(data.error || "登录失败");
+        setLoading(false);
         return;
       }
 
-      setUser(data.user);
-      router.push("/reading");
-    } catch {
+      if (data.user) {
+        setUser(data.user);
+        router.push("/reading");
+      } else {
+        setError("登录失败，请稍后再试");
+        setLoading(false);
+      }
+    } catch (err) {
       setError("网络错误，请稍后再试");
-    } finally {
       setLoading(false);
     }
   };

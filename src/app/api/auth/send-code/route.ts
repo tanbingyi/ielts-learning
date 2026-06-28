@@ -20,7 +20,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "无效的验证码类型" }, { status: 400 });
     }
 
-    // REGISTER: email must NOT be registered
     if (type === "REGISTER") {
       const existing = await prisma.user.findUnique({ where: { email } });
       if (existing) {
@@ -28,7 +27,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // RESET_PASSWORD: email MUST be registered
     if (type === "RESET_PASSWORD") {
       const existing = await prisma.user.findUnique({ where: { email } });
       if (!existing) {
@@ -37,9 +35,12 @@ export async function POST(request: Request) {
     }
 
     const code = await createVerificationCode(email, type);
-    await sendVerificationEmail(email, code, type);
+    const sent = await sendVerificationEmail(email, code, type);
 
-    return NextResponse.json({ message: "验证码已发送" });
+    return NextResponse.json({
+      message: sent ? "验证码已发送到邮箱" : "邮件发送失败，验证码如下（10分钟有效）",
+      code: sent ? undefined : code,
+    });
   } catch {
     return NextResponse.json({ error: "发送验证码失败" }, { status: 500 });
   }

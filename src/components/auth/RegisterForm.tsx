@@ -13,6 +13,7 @@ export default function RegisterForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [codeHint, setCodeHint] = useState("");
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -29,6 +30,7 @@ export default function RegisterForm() {
     }
 
     setError("");
+    setCodeHint("");
     setSendingCode(true);
 
     try {
@@ -42,6 +44,10 @@ export default function RegisterForm() {
       if (!res.ok) {
         setError(data.error || "发送失败");
         return;
+      }
+
+      if (data.code) {
+        setCodeHint(data.code);
       }
 
       // Start 60s countdown
@@ -135,6 +141,14 @@ export default function RegisterForm() {
           autoComplete="email"
         />
       </div>
+
+      {codeHint && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 text-sm">
+          <p className="text-yellow-700 mb-1">⚠️ 邮件发送失败，验证码如下：</p>
+          <p className="text-2xl font-bold text-yellow-800 tracking-widest text-center">{codeHint}</p>
+          <p className="text-yellow-600 text-xs mt-1">10分钟内有效</p>
+        </div>
+      )}
 
       <div>
         <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1.5">

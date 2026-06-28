@@ -19,14 +19,16 @@ export async function POST(request: Request) {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      // Return same message to prevent email enumeration
       return NextResponse.json({ message: "如果该邮箱已注册，验证码已发送" });
     }
 
     const code = await createVerificationCode(email, "RESET_PASSWORD");
-    await sendVerificationEmail(email, code, "RESET_PASSWORD");
+    const sent = await sendVerificationEmail(email, code, "RESET_PASSWORD");
 
-    return NextResponse.json({ message: "如果该邮箱已注册，验证码已发送" });
+    return NextResponse.json({
+      message: sent ? "如果该邮箱已注册，验证码已发送" : "邮件发送失败。您的验证码是：" + code + "（10分钟有效）",
+      code: sent ? undefined : code,
+    });
   } catch {
     return NextResponse.json({ error: "发送失败，请稍后再试" }, { status: 500 });
   }

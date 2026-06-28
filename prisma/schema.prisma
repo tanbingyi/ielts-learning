@@ -37,6 +37,8 @@ model Article {
   translation String
   difficulty  String   @default("B1")
   category    String   @default("academic")
+  source      String?
+  section     String?
   createdAt   DateTime @default(now())
 
   questions   ArticleQuestion[]

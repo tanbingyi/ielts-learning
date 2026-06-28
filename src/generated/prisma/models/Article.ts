@@ -32,6 +32,8 @@ export type ArticleMinAggregateOutputType = {
   translation: string | null
   difficulty: string | null
   category: string | null
+  source: string | null
+  section: string | null
   createdAt: Date | null
 }
 
@@ -43,6 +45,8 @@ export type ArticleMaxAggregateOutputType = {
   translation: string | null
   difficulty: string | null
   category: string | null
+  source: string | null
+  section: string | null
   createdAt: Date | null
 }
 
@@ -54,6 +58,8 @@ export type ArticleCountAggregateOutputType = {
   translation: number
   difficulty: number
   category: number
+  source: number
+  section: number
   createdAt: number
   _all: number
 }
@@ -67,6 +73,8 @@ export type ArticleMinAggregateInputType = {
   translation?: true
   difficulty?: true
   category?: true
+  source?: true
+  section?: true
   createdAt?: true
 }
 
@@ -78,6 +86,8 @@ export type ArticleMaxAggregateInputType = {
   translation?: true
   difficulty?: true
   category?: true
+  source?: true
+  section?: true
   createdAt?: true
 }
 
@@ -89,6 +99,8 @@ export type ArticleCountAggregateInputType = {
   translation?: true
   difficulty?: true
   category?: true
+  source?: true
+  section?: true
   createdAt?: true
   _all?: true
 }
@@ -173,6 +185,8 @@ export type ArticleGroupByOutputType = {
   translation: string
   difficulty: string
   category: string
+  source: string | null
+  section: string | null
   createdAt: Date
   _count: ArticleCountAggregateOutputType | null
   _min: ArticleMinAggregateOutputType | null
@@ -205,6 +219,8 @@ export type ArticleWhereInput = {
   translation?: Prisma.StringFilter<"Article"> | string
   difficulty?: Prisma.StringFilter<"Article"> | string
   category?: Prisma.StringFilter<"Article"> | string
+  source?: Prisma.StringNullableFilter<"Article"> | string | null
+  section?: Prisma.StringNullableFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   questions?: Prisma.ArticleQuestionListRelationFilter
 }
@@ -217,6 +233,8 @@ export type ArticleOrderByWithRelationInput = {
   translation?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  source?: Prisma.SortOrderInput | Prisma.SortOrder
+  section?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   questions?: Prisma.ArticleQuestionOrderByRelationAggregateInput
 }
@@ -232,6 +250,8 @@ export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   translation?: Prisma.StringFilter<"Article"> | string
   difficulty?: Prisma.StringFilter<"Article"> | string
   category?: Prisma.StringFilter<"Article"> | string
+  source?: Prisma.StringNullableFilter<"Article"> | string | null
+  section?: Prisma.StringNullableFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   questions?: Prisma.ArticleQuestionListRelationFilter
 }, "id">
@@ -244,6 +264,8 @@ export type ArticleOrderByWithAggregationInput = {
   translation?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  source?: Prisma.SortOrderInput | Prisma.SortOrder
+  section?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ArticleCountOrderByAggregateInput
   _max?: Prisma.ArticleMaxOrderByAggregateInput
@@ -261,6 +283,8 @@ export type ArticleScalarWhereWithAggregatesInput = {
   translation?: Prisma.StringWithAggregatesFilter<"Article"> | string
   difficulty?: Prisma.StringWithAggregatesFilter<"Article"> | string
   category?: Prisma.StringWithAggregatesFilter<"Article"> | string
+  source?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
+  section?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Article"> | Date | string
 }
 
@@ -272,6 +296,8 @@ export type ArticleCreateInput = {
   translation: string
   difficulty?: string
   category?: string
+  source?: string | null
+  section?: string | null
   createdAt?: Date | string
   questions?: Prisma.ArticleQuestionCreateNestedManyWithoutArticleInput
 }
@@ -284,6 +310,8 @@ export type ArticleUncheckedCreateInput = {
   translation: string
   difficulty?: string
   category?: string
+  source?: string | null
+  section?: string | null
   createdAt?: Date | string
   questions?: Prisma.ArticleQuestionUncheckedCreateNestedManyWithoutArticleInput
 }
@@ -296,6 +324,8 @@ export type ArticleUpdateInput = {
   translation?: Prisma.StringFieldUpdateOperationsInput | string
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.ArticleQuestionUpdateManyWithoutArticleNestedInput
 }
@@ -308,6 +338,8 @@ export type ArticleUncheckedUpdateInput = {
   translation?: Prisma.StringFieldUpdateOperationsInput | string
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.ArticleQuestionUncheckedUpdateManyWithoutArticleNestedInput
 }
@@ -320,6 +352,8 @@ export type ArticleCreateManyInput = {
   translation: string
   difficulty?: string
   category?: string
+  source?: string | null
+  section?: string | null
   createdAt?: Date | string
 }
 
@@ -331,6 +365,8 @@ export type ArticleUpdateManyMutationInput = {
   translation?: Prisma.StringFieldUpdateOperationsInput | string
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -342,6 +378,8 @@ export type ArticleUncheckedUpdateManyInput = {
   translation?: Prisma.StringFieldUpdateOperationsInput | string
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -353,6 +391,8 @@ export type ArticleCountOrderByAggregateInput = {
   translation?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  section?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -364,6 +404,8 @@ export type ArticleMaxOrderByAggregateInput = {
   translation?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  section?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -375,6 +417,8 @@ export type ArticleMinOrderByAggregateInput = {
   translation?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  source?: Prisma.SortOrder
+  section?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -405,6 +449,8 @@ export type ArticleCreateWithoutQuestionsInput = {
   translation: string
   difficulty?: string
   category?: string
+  source?: string | null
+  section?: string | null
   createdAt?: Date | string
 }
 
@@ -416,6 +462,8 @@ export type ArticleUncheckedCreateWithoutQuestionsInput = {
   translation: string
   difficulty?: string
   category?: string
+  source?: string | null
+  section?: string | null
   createdAt?: Date | string
 }
 
@@ -443,6 +491,8 @@ export type ArticleUpdateWithoutQuestionsInput = {
   translation?: Prisma.StringFieldUpdateOperationsInput | string
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -454,6 +504,8 @@ export type ArticleUncheckedUpdateWithoutQuestionsInput = {
   translation?: Prisma.StringFieldUpdateOperationsInput | string
   difficulty?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  section?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -496,6 +548,8 @@ export type ArticleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   translation?: boolean
   difficulty?: boolean
   category?: boolean
+  source?: boolean
+  section?: boolean
   createdAt?: boolean
   questions?: boolean | Prisma.Article$questionsArgs<ExtArgs>
   _count?: boolean | Prisma.ArticleCountOutputTypeDefaultArgs<ExtArgs>
@@ -509,6 +563,8 @@ export type ArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   translation?: boolean
   difficulty?: boolean
   category?: boolean
+  source?: boolean
+  section?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["article"]>
 
@@ -520,6 +576,8 @@ export type ArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   translation?: boolean
   difficulty?: boolean
   category?: boolean
+  source?: boolean
+  section?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["article"]>
 
@@ -531,10 +589,12 @@ export type ArticleSelectScalar = {
   translation?: boolean
   difficulty?: boolean
   category?: boolean
+  source?: boolean
+  section?: boolean
   createdAt?: boolean
 }
 
-export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "titleCn" | "content" | "translation" | "difficulty" | "category" | "createdAt", ExtArgs["result"]["article"]>
+export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "titleCn" | "content" | "translation" | "difficulty" | "category" | "source" | "section" | "createdAt", ExtArgs["result"]["article"]>
 export type ArticleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   questions?: boolean | Prisma.Article$questionsArgs<ExtArgs>
   _count?: boolean | Prisma.ArticleCountOutputTypeDefaultArgs<ExtArgs>
@@ -555,6 +615,8 @@ export type $ArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     translation: string
     difficulty: string
     category: string
+    source: string | null
+    section: string | null
     createdAt: Date
   }, ExtArgs["result"]["article"]>
   composites: {}
@@ -987,6 +1049,8 @@ export interface ArticleFieldRefs {
   readonly translation: Prisma.FieldRef<"Article", 'String'>
   readonly difficulty: Prisma.FieldRef<"Article", 'String'>
   readonly category: Prisma.FieldRef<"Article", 'String'>
+  readonly source: Prisma.FieldRef<"Article", 'String'>
+  readonly section: Prisma.FieldRef<"Article", 'String'>
   readonly createdAt: Prisma.FieldRef<"Article", 'DateTime'>
 }
     

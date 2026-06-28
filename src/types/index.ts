@@ -11,6 +11,8 @@ export interface ArticleSummary {
   titleCn: string;
   difficulty: string;
   category: string;
+  source?: string | null;
+  section?: string | null;
   questionCount: number;
   completed?: boolean;
   score?: number | null;

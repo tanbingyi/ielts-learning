@@ -7,7 +7,7 @@ export default async function ReadingListPage() {
   const user = await getSession();
 
   let articles: ArticleSummary[] = [];
-  let progressMap = new Map<string, { completed: boolean; score: number | null }>();
+  const progressMap = new Map<string, { completed: boolean; score: number | null }>();
 
   if (user) {
     const [rawArticles, progress] = await Promise.all([
@@ -18,9 +18,11 @@ export default async function ReadingListPage() {
           titleCn: true,
           difficulty: true,
           category: true,
+          source: true,
+          section: true,
           _count: { select: { questions: true } },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { source: "desc", section: "asc", createdAt: "desc" },
       }),
       prisma.userReadingProgress.findMany({
         where: { userId: user.id },
@@ -36,10 +38,28 @@ export default async function ReadingListPage() {
       titleCn: a.titleCn,
       difficulty: a.difficulty,
       category: a.category,
+      source: a.source,
+      section: a.section,
       questionCount: a._count.questions,
       completed: progressMap.get(a.id)?.completed ?? false,
       score: progressMap.get(a.id)?.score ?? null,
     }));
+  }
+
+  // Group articles by source
+  type Group = { source: string; articles: ArticleSummary[] };
+  const groups: Group[] = [];
+  const seen = new Map<string, Group>();
+
+  for (const a of articles) {
+    const key = a.source || "Sample";
+    let group = seen.get(key);
+    if (!group) {
+      group = { source: key, articles: [] };
+      seen.set(key, group);
+      groups.push(group);
+    }
+    group.articles.push(a);
   }
 
   return (
@@ -56,11 +76,55 @@ export default async function ReadingListPage() {
           <p className="text-gray-400">暂无文章</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {articles.map((article) => (
-            <ArticleCard key={article.id} article={article} />
-          ))}
-        </div>
+        groups.map((group) => (
+          <div key={group.source} className="mb-10">
+            <h2 className="text-lg font-bold text-mint-700 mb-4 flex items-center gap-2">
+              {group.source === "Cambridge IELTS 14" ? (
+                <>
+                  <span className="bg-mint-100 text-mint-700 text-xs font-medium px-2 py-0.5 rounded">
+                    CAMBRIDGE 14
+                  </span>
+                  剑桥雅思真题 14
+                </>
+              ) : (
+                <span className="text-gray-500 text-sm font-normal">
+                  预置练习文章
+                </span>
+              )}
+            </h2>
+
+            {/* For Cambridge 14: show Test sub-groups */}
+            {group.source === "Cambridge IELTS 14" ? (
+              (() => {
+                const testGroups = new Map<string, ArticleSummary[]>();
+                for (const a of group.articles) {
+                  const s = a.section || "Other";
+                  const list = testGroups.get(s) || [];
+                  list.push(a);
+                  testGroups.set(s, list);
+                }
+                return Array.from(testGroups.entries()).map(([testName, testArticles]) => (
+                  <div key={testName} className="mb-6">
+                    <h3 className="text-sm font-semibold text-gray-600 mb-3 border-l-2 border-mint-400 pl-3">
+                      {testName}
+                    </h3>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {testArticles.map((article) => (
+                        <ArticleCard key={article.id} article={article} />
+                      ))}
+                    </div>
+                  </div>
+                ));
+              })()
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {group.articles.map((article) => (
+                  <ArticleCard key={article.id} article={article} />
+                ))}
+              </div>
+            )}
+          </div>
+        ))
       )}
     </div>
   );

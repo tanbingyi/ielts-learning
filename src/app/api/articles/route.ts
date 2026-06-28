@@ -15,9 +15,11 @@ export async function GET() {
       titleCn: true,
       difficulty: true,
       category: true,
+      source: true,
+      section: true,
       _count: { select: { questions: true } },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { source: "desc", section: "asc", createdAt: "desc" },
   });
 
   const progress = await prisma.userReadingProgress.findMany({
@@ -29,12 +31,14 @@ export async function GET() {
   const progressMap = new Map<string, ProgressEntry>();
   progress.forEach((p: ProgressEntry) => progressMap.set(p.articleId, p));
 
-  const result = articles.map((a: { id: string; title: string; titleCn: string; difficulty: string; category: string; _count: { questions: number } }) => ({
+  const result = articles.map((a: { id: string; title: string; titleCn: string; difficulty: string; category: string; source: string | null; section: string | null; _count: { questions: number } }) => ({
     id: a.id,
     title: a.title,
     titleCn: a.titleCn,
     difficulty: a.difficulty,
     category: a.category,
+    source: a.source,
+    section: a.section,
     questionCount: a._count.questions,
     completed: progressMap.get(a.id)?.completed ?? false,
     score: progressMap.get(a.id)?.score ?? null,

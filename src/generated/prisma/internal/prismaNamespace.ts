@@ -922,6 +922,8 @@ export const ArticleScalarFieldEnum = {
   translation: 'translation',
   difficulty: 'difficulty',
   category: 'category',
+  source: 'source',
+  section: 'section',
   createdAt: 'createdAt'
 } as const
 

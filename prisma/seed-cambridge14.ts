@@ -37,6 +37,29 @@ function addArticle(
   console.log(`  Added: ${title}`);
 }
 
+// Always update source/section for existing Cambridge 14 articles
+const updateMap: Record<string, [string, string]> = {
+  "%Children%Play%": ["Cambridge IELTS 14", "Test 1"],
+  "%Bike-Sharing%": ["Cambridge IELTS 14", "Test 1"],
+  "%Hospitality Industry%": ["Cambridge IELTS 14", "Test 1"],
+  "%Back to the Future%": ["Cambridge IELTS 14", "Test 2"],
+  "%Alexander Henderson%": ["Cambridge IELTS 14", "Test 2"],
+  "%Welcome Disorder%": ["Cambridge IELTS 14", "Test 2"],
+  "%Concept of Intelligence%": ["Cambridge IELTS 14", "Test 3"],
+  "%Saving Bugs%": ["Cambridge IELTS 14", "Test 3"],
+  "%Power of Play%": ["Cambridge IELTS 14", "Test 3"],
+  "%Secret of Staying%": ["Cambridge IELTS 14", "Test 4"],
+  "%Zoos Are Good%": ["Cambridge IELTS 14", "Test 4"],
+  "%Marine Debris%": ["Cambridge IELTS 14", "Test 4"],
+};
+const updateStmt = db.prepare("UPDATE Article SET source = ?, section = ? WHERE title LIKE ? AND source IS NULL");
+let updated = 0;
+for (const [pattern, [src, sec]] of Object.entries(updateMap)) {
+  const result = updateStmt.run(src, sec, pattern);
+  updated += result.changes;
+}
+if (updated > 0) console.log(`Updated source/section for ${updated} existing articles.`);
+
 // Check if Cambridge 14 articles are already seeded
 const existingC14 = db.prepare(
   "SELECT COUNT(*) as cnt FROM Article WHERE title LIKE ? OR title LIKE ? OR title LIKE ?"
@@ -500,27 +523,6 @@ Addressing the marine debris crisis requires action on multiple fronts. Improved
     { type: "true_false", questionText: "Improving waste management in developing countries is part of the solution to marine debris.", options: ["True", "False"], correctAnswer: "True" },
   ]
 );
-
-// Always update source/section for existing Cambridge 14 articles
-const updateMap: Record<string, [string, string]> = {
-  "The%Children%Play%": ["Cambridge IELTS 14", "Test 1"],
-  "%Bike-Sharing%": ["Cambridge IELTS 14", "Test 1"],
-  "%Hospitality Industry%": ["Cambridge IELTS 14", "Test 1"],
-  "%Back to the Future%": ["Cambridge IELTS 14", "Test 2"],
-  "%Alexander Henderson%": ["Cambridge IELTS 14", "Test 2"],
-  "%Welcome Disorder%": ["Cambridge IELTS 14", "Test 2"],
-  "%Concept of Intelligence%": ["Cambridge IELTS 14", "Test 3"],
-  "%Saving Bugs%": ["Cambridge IELTS 14", "Test 3"],
-  "%Power of Play%": ["Cambridge IELTS 14", "Test 3"],
-  "%Secret of Staying%": ["Cambridge IELTS 14", "Test 4"],
-  "%Zoos Are Good%": ["Cambridge IELTS 14", "Test 4"],
-  "%Marine Debris%": ["Cambridge IELTS 14", "Test 4"],
-};
-
-const updateStmt = db.prepare("UPDATE Article SET source = ?, section = ? WHERE title LIKE ? AND source IS NULL");
-for (const [pattern, [src, sec]] of Object.entries(updateMap)) {
-  updateStmt.run(src, sec, pattern);
-}
 
 console.log("\n✅ Added 12 Cambridge IELTS 14 reading passages with 60 questions total.");
 db.close();

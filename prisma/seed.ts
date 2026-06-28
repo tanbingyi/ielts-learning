@@ -17,6 +17,10 @@ db.pragma("journal_mode = WAL");
 
 console.log("Seeding database...");
 
+// Always update source/section for existing sample articles
+const sampleUpdate = db.prepare("UPDATE Article SET source = 'Sample', section = 'Pre-loaded' WHERE source IS NULL").run();
+if (sampleUpdate.changes > 0) console.log(`Updated source for ${sampleUpdate.changes} sample articles.`);
+
 // Check if already seeded
 const existing = db.prepare("SELECT COUNT(*) as cnt FROM Article").get() as { cnt: number };
 if (existing.cnt > 0) {
@@ -249,9 +253,6 @@ function insertQuestions(
     stmt.run(cuid(), articleId, q.type, q.questionText, JSON.stringify(q.options), q.correctAnswer, i + 1);
   });
 }
-
-// Set source/section for sample articles if not already set
-db.prepare("UPDATE Article SET source = 'Sample', section = 'Pre-loaded' WHERE source IS NULL AND title NOT LIKE '%Bike-Sharing%' AND title NOT LIKE '%Children%Play%' AND title NOT LIKE '%Back to the Future%' AND title NOT LIKE '%Alexander Henderson%' AND title NOT LIKE '%Welcome Disorder%' AND title NOT LIKE '%Concept of Intelligence%' AND title NOT LIKE '%Saving Bugs%' AND title NOT LIKE '%Power of Play%' AND title NOT LIKE '%Secret of Staying%' AND title NOT LIKE '%Zoos Are Good%' AND title NOT LIKE '%Marine Debris%' AND title NOT LIKE '%Hospitality Industry%'").run();
 
 console.log("Seed completed: 5 articles with 25 questions");
 db.close();

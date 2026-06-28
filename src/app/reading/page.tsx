@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import ArticleCard from "@/components/reading/ArticleCard";
+import ReadingList from "@/components/reading/ReadingList";
 import type { ArticleSummary } from "@/types";
 
 export default async function ReadingListPage() {
@@ -70,62 +70,7 @@ export default async function ReadingListPage() {
           选择一篇文章开始阅读练习，点击文中单词即可查看中文释义
         </p>
       </div>
-
-      {articles.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-gray-400">暂无文章</p>
-        </div>
-      ) : (
-        groups.map((group) => (
-          <div key={group.source} className="mb-10">
-            <h2 className="text-lg font-bold text-mint-700 mb-4 flex items-center gap-2">
-              {group.source === "Cambridge IELTS 14" ? (
-                <>
-                  <span className="bg-mint-100 text-mint-700 text-xs font-medium px-2 py-0.5 rounded">
-                    CAMBRIDGE 14
-                  </span>
-                  剑桥雅思真题 14
-                </>
-              ) : (
-                <span className="text-gray-500 text-sm font-normal">
-                  预置练习文章
-                </span>
-              )}
-            </h2>
-
-            {/* For Cambridge 14: show Test sub-groups */}
-            {group.source === "Cambridge IELTS 14" ? (
-              (() => {
-                const testGroups = new Map<string, ArticleSummary[]>();
-                for (const a of group.articles) {
-                  const s = a.section || "Other";
-                  const list = testGroups.get(s) || [];
-                  list.push(a);
-                  testGroups.set(s, list);
-                }
-                return Array.from(testGroups.entries()).map(([testName, testArticles]) => (
-                  <div key={testName} className="mb-6">
-                    <h3 className="text-sm font-semibold text-gray-600 mb-3 border-l-2 border-mint-400 pl-3">
-                      {testName}
-                    </h3>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {testArticles.map((article) => (
-                        <ArticleCard key={article.id} article={article} />
-                      ))}
-                    </div>
-                  </div>
-                ));
-              })()
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {group.articles.map((article) => (
-                  <ArticleCard key={article.id} article={article} />
-                ))}
-              </div>
-            )}
-          </div>
-        ))
-      )}
+      <ReadingList groups={groups} />
     </div>
   );
 }

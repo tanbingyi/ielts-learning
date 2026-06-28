@@ -22,7 +22,7 @@ export default async function ReadingListPage() {
           section: true,
           _count: { select: { questions: true } },
         },
-        orderBy: { source: "desc", section: "asc", createdAt: "desc" },
+        orderBy: [{ source: "desc" }, { section: "asc" }, { createdAt: "desc" }],
       }),
       prisma.userReadingProgress.findMany({
         where: { userId: user.id },

@@ -19,7 +19,7 @@ export async function GET() {
       section: true,
       _count: { select: { questions: true } },
     },
-    orderBy: { source: "desc", section: "asc", createdAt: "desc" },
+    orderBy: [{ source: "desc" }, { section: "asc" }, { createdAt: "desc" }],
   });
 
   const progress = await prisma.userReadingProgress.findMany({

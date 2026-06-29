@@ -54,9 +54,10 @@ export default function ArticleReaderPage() {
     async function load() {
       setLoading(true);
       try {
-        const [articleRes, vocabRes] = await Promise.all([
+        const [articleRes, vocabRes, questionsRes] = await Promise.all([
           fetch(`/api/articles/${id}`),
           fetch(`/api/vocabulary?articleId=${id}`),
+          fetch(`/api/articles/${id}/questions`),
         ]);
 
         if (articleRes.ok) {
@@ -80,6 +81,12 @@ export default function ArticleReaderPage() {
         if (vocabRes.ok) {
           const data = await vocabRes.json();
           setVocabWords(data.words);
+        }
+
+        if (questionsRes.ok) {
+          const data = await questionsRes.json();
+          setQuestions(data.questions);
+          setShowQuiz(true);
         }
       } catch (err) {
         console.error(err);
@@ -179,30 +186,14 @@ export default function ArticleReaderPage() {
             </div>
           )}
 
-          {(!existingProgress?.completed || showQuiz) && !result && (
+          {!result && showQuiz && questions.length > 0 && (
             <div className="mt-8">
-              {!showQuiz ? (
-                <div className="text-center">
-                  <button
-                    onClick={handleStartQuiz}
-                    className="bg-mint-500 hover:bg-mint-600 text-white rounded-lg px-8 py-3 text-base font-medium transition-colors cursor-pointer"
-                  >
-                    {Object.keys(savedAnswers).length > 0 ? "继续答题" : "开始答题"}
-                  </button>
-                  <p className="text-sm text-gray-400 mt-2">
-                    {Object.keys(savedAnswers).length > 0
-                      ? `已保存 ${Object.keys(savedAnswers).length} 道题的答案，点击继续`
-                      : "共 5 道题，包含选择题和判断题"}
-                  </p>
-                </div>
-              ) : (
-                <QuestionPanel
-                  questions={questions}
-                  initialAnswers={savedAnswers}
-                  onSave={handleSaveProgress}
-                  onSubmit={handleSubmit}
-                />
-              )}
+              <QuestionPanel
+                questions={questions}
+                initialAnswers={savedAnswers}
+                onSave={handleSaveProgress}
+                onSubmit={handleSubmit}
+              />
             </div>
           )}
 

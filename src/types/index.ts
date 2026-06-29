@@ -30,7 +30,7 @@ export interface ArticleDetail {
 
 export interface Question {
   id: string;
-  type: "multiple_choice" | "true_false";
+  type: "multiple_choice" | "true_false" | "true_false_not_given" | "yes_no_not_given" | "note_completion";
   questionText: string;
   options: string[];
 }

@@ -39,8 +39,6 @@ export default function ArticleCard({ article }: { article: ArticleSummary }) {
         </div>
       </div>
 
-      <p className="text-sm text-gray-500 mb-3">{article.titleCn}</p>
-
       <div className="flex items-center justify-between text-xs text-gray-400">
         <span>{article.questionCount} 道练习题</span>
         {article.score !== null && article.score !== undefined && (

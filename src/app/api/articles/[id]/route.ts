@@ -32,7 +32,7 @@ export async function GET(
 
   const progress = await prisma.userReadingProgress.findUnique({
     where: { userId_articleId: { userId: user.id, articleId: id } },
-    select: { completed: true, score: true },
+    select: { completed: true, score: true, answers: true },
   });
 
   const vocabCount = await prisma.userVocabulary.count({

@@ -22,6 +22,7 @@ export default function ArticleReaderPage() {
     score: number | null;
     answers?: Record<string, string>;
   } | null>(null);
+  const [savedAnswers, setSavedAnswers] = useState<Record<string, string>>({});
 
   const fetchVocab = useCallback(async () => {
     const res = await fetch(`/api/vocabulary?articleId=${id}`);
@@ -63,6 +64,13 @@ export default function ArticleReaderPage() {
           setArticle(data.article);
           if (data.progress) {
             setExistingProgress(data.progress);
+            // Restore saved answers
+            if (data.progress.answers) {
+              try {
+                const parsed = JSON.parse(data.progress.answers);
+                setSavedAnswers(parsed);
+              } catch { /* ignore parse error */ }
+            }
             if (data.progress.completed) {
               setShowQuiz(true);
             }
@@ -102,6 +110,15 @@ export default function ArticleReaderPage() {
       setResult(data);
     }
   };
+
+  const handleSaveProgress = useCallback(async (answers: Record<string, string>) => {
+    setSavedAnswers(answers);
+    await fetch(`/api/articles/${id}/save-progress`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers }),
+    });
+  }, [id]);
 
   const handleRetry = () => {
     setShowQuiz(true);
@@ -170,14 +187,21 @@ export default function ArticleReaderPage() {
                     onClick={handleStartQuiz}
                     className="bg-mint-500 hover:bg-mint-600 text-white rounded-lg px-8 py-3 text-base font-medium transition-colors cursor-pointer"
                   >
-                    开始答题
+                    {Object.keys(savedAnswers).length > 0 ? "继续答题" : "开始答题"}
                   </button>
                   <p className="text-sm text-gray-400 mt-2">
-                    共 5 道题，包含选择题和判断题
+                    {Object.keys(savedAnswers).length > 0
+                      ? `已保存 ${Object.keys(savedAnswers).length} 道题的答案，点击继续`
+                      : "共 5 道题，包含选择题和判断题"}
                   </p>
                 </div>
               ) : (
-                <QuestionPanel questions={questions} onSubmit={handleSubmit} />
+                <QuestionPanel
+                  questions={questions}
+                  initialAnswers={savedAnswers}
+                  onSave={handleSaveProgress}
+                  onSubmit={handleSubmit}
+                />
               )}
             </div>
           )}

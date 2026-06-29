@@ -1,20 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Question } from "@/types";
 
 interface Props {
   questions: Question[];
+  initialAnswers?: Record<string, string>;
+  onSave?: (answers: Record<string, string>) => void;
   onSubmit: (answers: Record<string, string>) => void;
 }
 
-export default function QuestionPanel({ questions, onSubmit }: Props) {
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+export default function QuestionPanel({ questions, initialAnswers, onSave, onSubmit }: Props) {
+  const [answers, setAnswers] = useState<Record<string, string>>(initialAnswers || {});
   const [submitted, setSubmitted] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
 
-  const handleSelect = (questionId: string, value: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-  };
+  // Restore initial answers when they change
+  useEffect(() => {
+    if (initialAnswers && Object.keys(initialAnswers).length > 0) {
+      setAnswers(initialAnswers);
+    }
+  }, [initialAnswers]);
+
+  const handleSelect = useCallback((questionId: string, value: string) => {
+    setAnswers((prev) => {
+      const next = { ...prev, [questionId]: value };
+      // Auto-save after each selection
+      if (onSave) {
+        onSave(next);
+        setLastSaved(new Date().toLocaleTimeString());
+      }
+      return next;
+    });
+  }, [onSave]);
 
   const allAnswered = questions.every((q) => answers[q.id]);
 
@@ -26,9 +44,16 @@ export default function QuestionPanel({ questions, onSubmit }: Props) {
 
   return (
     <div className="border border-mint-200 rounded-xl bg-white p-6">
-      <h3 className="font-semibold text-gray-800 text-lg mb-6">
-        阅读理解题 ({questions.length} 题)
-      </h3>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-semibold text-gray-800 text-lg">
+          阅读理解题 ({questions.length} 题)
+        </h3>
+        {lastSaved && (
+          <span className="text-xs text-gray-400">
+            已自动保存 {lastSaved}
+          </span>
+        )}
+      </div>
 
       <div className="space-y-8">
         {questions.map((q, idx) => (
@@ -86,7 +111,7 @@ export default function QuestionPanel({ questions, onSubmit }: Props) {
         </button>
         {!allAnswered && !submitted && (
           <p className="text-xs text-gray-400 mt-2">
-            请回答所有题目后再提交
+            请回答所有题目后再提交（已选 {Object.keys(answers).filter(k => answers[k]).length}/{questions.length} 题）
           </p>
         )}
       </div>

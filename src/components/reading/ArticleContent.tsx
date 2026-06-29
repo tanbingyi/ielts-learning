@@ -8,6 +8,30 @@ interface Props {
   onWordClick: (word: string, translationCn: string) => void;
 }
 
+const PARAGRAPH_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function renderParagraph(text: string, onWordClick: (word: string, e: React.MouseEvent) => void) {
+  const tokens = text.match(/\b[\w'-]+\b|[^\w\s]+|\s+/g) || [];
+  return tokens.map((token, i) => {
+    if (/^\s+$/.test(token) || /^[^\w\s]+$/.test(token)) {
+      return <span key={i}>{token}</span>;
+    }
+    if (!/^[a-zA-Z]/.test(token)) {
+      return <span key={i}>{token}</span>;
+    }
+    return (
+      <span
+        key={i}
+        onClick={(e) => onWordClick(token, e)}
+        className="cursor-pointer hover:bg-mint-200 rounded px-0.5 -mx-0.5 transition-colors duration-100 inline-block"
+        title="点击查看中文释义"
+      >
+        {token}
+      </span>
+    );
+  });
+}
+
 export default function ArticleContent({ content, onWordClick }: Props) {
   const [popup, setPopup] = useState<{
     word: string;
@@ -51,29 +75,23 @@ export default function ArticleContent({ content, onWordClick }: Props) {
     [onWordClick]
   );
 
-  const tokens = content.match(/\b[\w'-]+\b|[^\w\s]+|\s+/g) || [];
+  // Split content into paragraphs by double newlines
+  const paragraphs = content.split(/\n\n+/).filter((p) => p.trim().length > 0);
 
   return (
     <div className="relative">
-      <div className="text-base leading-8 text-gray-700 whitespace-pre-wrap">
-        {tokens.map((token, i) => {
-          if (/^\s+$/.test(token) || /^[^\w\s]+$/.test(token)) {
-            return <span key={i}>{token}</span>;
-          }
-          if (!/^[a-zA-Z]/.test(token)) {
-            return <span key={i}>{token}</span>;
-          }
-          return (
-            <span
-              key={i}
-              onClick={(e) => handleWordClick(token, e)}
-              className="cursor-pointer hover:bg-mint-200 rounded px-0.5 -mx-0.5 transition-colors duration-100 inline-block"
-              title="点击查看中文释义"
-            >
-              {token}
+      <div className="text-base leading-8 text-gray-700">
+        {paragraphs.map((para, idx) => (
+          <div key={idx} className="flex gap-3 mb-5">
+            {/* Paragraph label */}
+            <span className="text-xs font-bold text-mint-500 mt-1.5 select-none flex-shrink-0 w-6 text-right">
+              {PARAGRAPH_LABELS[idx] || "?"}
             </span>
-          );
-        })}
+            <div className="min-w-0">
+              {renderParagraph(para, handleWordClick)}
+            </div>
+          </div>
+        ))}
       </div>
 
       {popup && (
